@@ -11,73 +11,70 @@ export interface VMActionResult {
   data?: any;
 }
 
+export interface VM {
+  id: string;
+  name: string;
+  status: 'healthy' | 'warning' | 'critical';
+  cpu: number;
+  ram: number;
+  disk: number;
+  uptime: string;
+  lastUpdate: string;
+}
+
 class VMManagementAPI {
-  private baseUrl = 'http://localhost:3001/api'; // หรือ URL ของ VM management API
+  private baseUrl = 'http://localhost:3001/api';
 
   async executeAction(action: VMAction): Promise<VMActionResult> {
     try {
       console.log(`Executing ${action.action} on VM ${action.vmId}`);
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock different responses based on action type
-      switch (action.action.toLowerCase()) {
-        case 'optimize performance':
-          return {
-            success: true,
-            message: 'Performance optimization completed successfully',
-            data: { cpuReduction: 15, memoryFreed: 25 }
-          };
-        
-        case 'cleanup disk':
-          return {
-            success: true,
-            message: 'Disk cleanup completed, freed 2.3GB',
-            data: { spaceCleaned: 2.3, diskUtilization: 65 }
-          };
-        
-        case 'restart services':
-          return {
-            success: true,
-            message: 'Services restarted successfully',
-            data: { servicesRestarted: ['apache2', 'mysql', 'redis'] }
-          };
-        
-        case 'emergency restart':
-          return {
-            success: true,
-            message: 'Emergency restart initiated',
-            data: { restartTime: new Date().toISOString() }
-          };
-        
-        case 'pause vm':
-          return {
-            success: true,
-            message: 'VM paused successfully',
-            data: { status: 'paused' }
-          };
-        
-        case 'resume vm':
-          return {
-            success: true,
-            message: 'VM resumed successfully',
-            data: { status: 'running' }
-          };
-        
-        default:
-          return {
-            success: true,
-            message: `Action "${action.action}" executed successfully`,
-            data: {}
-          };
+      const response = await fetch(`${this.baseUrl}/vm/action`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(action)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const result = await response.json();
+      return result;
     } catch (error) {
       console.error('API Error:', error);
       return {
         success: false,
-        message: `Failed to execute ${action.action}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        message: `Failed to execute ${action.action}: ${error instanceof Error ? error.message : 'Network error'}`,
       };
+    }
+  }
+
+  async getVMs(): Promise<VM[]> {
+    try {
+      console.log('Fetching VMs from local API...');
+      
+      const response = await fetch(`${this.baseUrl}/vms`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        return result.data;
+      } else {
+        throw new Error(result.message || 'Failed to fetch VMs');
+      }
+    } catch (error) {
+      console.error('Failed to get VMs:', error);
+      
+      // Fallback to mock data if local API is not available
+      console.log('Falling back to mock data...');
+      return this.getMockVMs();
     }
   }
 
@@ -85,19 +82,74 @@ class VMManagementAPI {
     try {
       console.log(`Fetching status for VM ${vmId}`);
       
-      // Mock VM status response
-      return {
-        id: vmId,
-        status: 'running',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        lastUpdate: new Date().toISOString()
-      };
+      const response = await fetch(`${this.baseUrl}/system/status`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        return {
+          id: vmId,
+          status: 'running',
+          ...result.data
+        };
+      } else {
+        throw new Error(result.message || 'Failed to get system status');
+      }
     } catch (error) {
       console.error('Failed to get VM status:', error);
       throw error;
     }
+  }
+
+  async checkHealth(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health`);
+      const result = await response.json();
+      return result.success;
+    } catch (error) {
+      console.error('Health check failed:', error);
+      return false;
+    }
+  }
+
+  // Fallback mock data when backend is not available
+  private getMockVMs(): VM[] {
+    return [
+      {
+        id: 'vm-1',
+        name: 'Production Server',
+        status: 'healthy',
+        cpu: Math.random() * 100,
+        ram: Math.random() * 100,
+        disk: Math.random() * 100,
+        uptime: '7d 12h 34m',
+        lastUpdate: new Date().toISOString()
+      },
+      {
+        id: 'vm-2',
+        name: 'Development Server',
+        status: 'warning',
+        cpu: Math.random() * 100,
+        ram: Math.random() * 100,
+        disk: Math.random() * 100,
+        uptime: '2d 8h 15m',
+        lastUpdate: new Date().toISOString()
+      },
+      {
+        id: 'vm-3',
+        name: 'Database Server',
+        status: 'critical',
+        cpu: Math.random() * 100,
+        ram: Math.random() * 100,
+        disk: Math.random() * 100,
+        uptime: '15d 3h 22m',
+        lastUpdate: new Date().toISOString()
+      }
+    ];
   }
 }
 
