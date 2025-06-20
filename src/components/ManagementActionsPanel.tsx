@@ -12,9 +12,10 @@ import {
   Settings, 
   Trash2,
   Shield,
-  AlertTriangle
+  AlertTriangle,
+  Loader2
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { useVMActions } from "@/hooks/useVMActions";
 
 interface VM {
   id: string;
@@ -27,16 +28,11 @@ interface ManagementActionsPanelProps {
 }
 
 export const ManagementActionsPanel = ({ vm }: ManagementActionsPanelProps) => {
-  const { toast } = useToast();
+  const { executeAction, isExecuting } = useVMActions();
 
-  const handleAction = (action: string, vmName: string) => {
-    // Simulate management action
-    console.log(`Performing ${action} on ${vmName}`);
-    
-    toast({
-      title: `${action} initiated`,
-      description: `Action "${action}" has been queued for ${vmName}`,
-    });
+  const handleAction = async (actionLabel: string, vmName: string) => {
+    console.log(`Performing ${actionLabel} on ${vmName}`);
+    await executeAction(vm.id, actionLabel, vmName);
   };
 
   const getActionsByStatus = () => {
@@ -147,6 +143,8 @@ export const ManagementActionsPanel = ({ vm }: ManagementActionsPanelProps) => {
           <h4 className="font-medium text-sm">Recommended Actions</h4>
           {actions.map((action) => {
             const IconComponent = action.icon;
+            const isCurrentlyExecuting = isExecuting === action.label;
+            
             return (
               <div key={action.id} className="flex items-center justify-between p-3 border rounded-lg">
                 <div className="flex items-start gap-3">
@@ -160,8 +158,16 @@ export const ManagementActionsPanel = ({ vm }: ManagementActionsPanelProps) => {
                   size="sm" 
                   variant={action.variant}
                   onClick={() => handleAction(action.label, vm.name)}
+                  disabled={!!isExecuting}
                 >
-                  Execute
+                  {isCurrentlyExecuting ? (
+                    <>
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                      Running...
+                    </>
+                  ) : (
+                    'Execute'
+                  )}
                 </Button>
               </div>
             );
@@ -176,32 +182,52 @@ export const ManagementActionsPanel = ({ vm }: ManagementActionsPanelProps) => {
               size="sm" 
               variant="outline"
               onClick={() => handleAction('Pause VM', vm.name)}
+              disabled={!!isExecuting}
             >
-              <Pause className="h-3 w-3 mr-1" />
+              {isExecuting === 'Pause VM' ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Pause className="h-3 w-3 mr-1" />
+              )}
               Pause
             </Button>
             <Button 
               size="sm" 
               variant="outline"
               onClick={() => handleAction('Resume VM', vm.name)}
+              disabled={!!isExecuting}
             >
-              <Play className="h-3 w-3 mr-1" />
+              {isExecuting === 'Resume VM' ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Play className="h-3 w-3 mr-1" />
+              )}
               Resume
             </Button>
             <Button 
               size="sm" 
               variant="outline"
               onClick={() => handleAction('Soft Restart', vm.name)}
+              disabled={!!isExecuting}
             >
-              <RefreshCw className="h-3 w-3 mr-1" />
+              {isExecuting === 'Soft Restart' ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <RefreshCw className="h-3 w-3 mr-1" />
+              )}
               Restart
             </Button>
             <Button 
               size="sm" 
               variant="outline"
               onClick={() => handleAction('Open Console', vm.name)}
+              disabled={!!isExecuting}
             >
-              <Terminal className="h-3 w-3 mr-1" />
+              {isExecuting === 'Open Console' ? (
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+              ) : (
+                <Terminal className="h-3 w-3 mr-1" />
+              )}
               Console
             </Button>
           </div>
