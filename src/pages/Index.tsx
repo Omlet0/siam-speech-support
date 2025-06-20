@@ -10,12 +10,13 @@ import { PerformanceChart } from "@/components/PerformanceChart";
 import { ActivityLog } from "@/components/ActivityLog";
 import { VMTableView } from "@/components/VMTableView";
 import { SummaryDashboard } from "@/components/SummaryDashboard";
+import { VMDetailModal } from "@/components/VMDetailModal";
 import { mockVMData, mockPerformanceData, mockActivityLog } from "@/data/mockData";
-import { Server, Activity, AlertTriangle, CheckCircle, Table, Grid3X3, BarChart3 } from "lucide-react";
+import { Server, Activity, AlertTriangle, CheckCircle, Table, BarChart3 } from "lucide-react";
 
 const Index = () => {
   const [selectedVM, setSelectedVM] = useState(null);
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const totalVMs = mockVMData.length;
   const healthyVMs = mockVMData.filter(vm => vm.status === 'healthy').length;
@@ -24,12 +25,14 @@ const Index = () => {
 
   const handleViewDetails = (vm: any) => {
     setSelectedVM(vm);
+    setIsModalOpen(true);
     console.log('View details for VM:', vm.name);
   };
 
   const handleManageVM = (vm: any) => {
+    setSelectedVM(vm);
+    setIsModalOpen(true);
     console.log('Manage VM:', vm.name);
-    // This would open a management dialog or navigate to management page
   };
 
   return (
@@ -49,14 +52,10 @@ const Index = () => {
 
         {/* Main Content */}
         <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-4">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="overview" className="flex items-center gap-2">
-              <Grid3X3 className="h-4 w-4" />
-              Overview
             </TabsTrigger>
             <TabsTrigger value="table" className="flex items-center gap-2">
               <Table className="h-4 w-4" />
@@ -68,58 +67,6 @@ const Index = () => {
 
           <TabsContent value="dashboard" className="space-y-6">
             <SummaryDashboard vms={mockVMData} />
-          </TabsContent>
-
-          <TabsContent value="overview" className="space-y-6">
-            {/* Overview Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total VMs</CardTitle>
-                  <Server className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{totalVMs}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Healthy</CardTitle>
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{healthyVMs}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Warning</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-yellow-600">{warningVMs}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Critical</CardTitle>
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{criticalVMs}</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* VM Cards Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-              {mockVMData.map((vm) => (
-                <VMStatusCard key={vm.id} vm={vm} />
-              ))}
-            </div>
           </TabsContent>
 
           <TabsContent value="table" className="space-y-6">
@@ -138,6 +85,13 @@ const Index = () => {
             <ActivityLog activities={mockActivityLog} />
           </TabsContent>
         </Tabs>
+
+        {/* VM Detail Modal */}
+        <VMDetailModal 
+          vm={selectedVM}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
       </div>
     </div>
   );
