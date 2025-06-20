@@ -12,7 +12,8 @@ import { SummaryDashboard } from "@/components/SummaryDashboard";
 import { VMDetailModal } from "@/components/VMDetailModal";
 import { useVMData } from "@/hooks/useVMData";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
-import { mockPerformanceData, mockActivityLog } from "@/data/mockData";
+import { usePerformanceData } from "@/hooks/usePerformanceData";
+import { useActivityData } from "@/hooks/useActivityData";
 import { Server, Activity, AlertTriangle, CheckCircle, Table, BarChart3, Wifi, WifiOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,6 +25,8 @@ const Index = () => {
   
   const { vms, isLoading, error, refetch, healthStatus } = useVMData();
   const { systemStatus } = useSystemStatus();
+  const { performanceData } = usePerformanceData();
+  const { activityData } = useActivityData();
 
   // Show connection status
   const isConnected = healthStatus === true;
@@ -188,11 +191,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6">
-            <PerformanceChart data={isConnected ? [] : []} />
+            <PerformanceChart data={performanceData || []} />
           </TabsContent>
 
           <TabsContent value="activity" className="space-y-6">
-            <ActivityLog activities={isConnected ? [] : []} />
+            <ActivityLog activities={activityData || []} />
           </TabsContent>
         </Tabs>
 
