@@ -23,7 +23,7 @@ router.get('/status', async (req, res) => {
   }
 });
 
-// Health check
+// Health check - ย้ายไปใน server.js แล้ว แต่เก็บไว้เผื่อ
 router.get('/health', (req, res) => {
   res.json({
     success: true,
