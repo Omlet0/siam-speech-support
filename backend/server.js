@@ -5,7 +5,7 @@ const systemRoutes = require('./routes/systemRoutes');
 const vmRoutes = require('./routes/vmRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT || 3001;
 
 // Middleware - แก้ไข CORS configuration
 app.use(cors({

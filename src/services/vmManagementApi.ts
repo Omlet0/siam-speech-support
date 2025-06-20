@@ -22,7 +22,7 @@ export interface VM {
 }
 
 class VMManagementAPI {
-  private baseUrl = 'http://localhost:3002/api';
+  private baseUrl = 'http://localhost:3001/api';
 
   async executeAction(action: VMAction): Promise<VMActionResult> {
     try {
