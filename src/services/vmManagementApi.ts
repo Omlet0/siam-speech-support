@@ -1,4 +1,5 @@
 
+
    export interface VMAction {
      vmId: string;
      action: string;
@@ -79,9 +80,9 @@
        } catch (error) {
          console.error('Failed to get VMs from backend:', error);
          
-         // Only fallback to mock data if explicitly needed for development
-         console.log('Backend not available, using mock data...');
-         return this.getMockVMs();
+         // Return empty array instead of mock data
+         console.log('Backend not available, returning empty array');
+         return [];
        }
      }
 
@@ -142,23 +143,6 @@
          console.error('Health check failed:', error);
          return false;
        }
-     }
-
-     // Mock data for development only
-     private getMockVMs(): VM[] {
-       console.warn('Using mock data - backend server not running');
-       return [
-         {
-           id: 'vm-mock-1',
-           name: 'Mock Server (Backend Offline)',
-           status: 'warning',
-           cpu: Math.random() * 50 + 20,
-           ram: Math.random() * 60 + 30,
-           disk: Math.random() * 70 + 20,
-           uptime: '0h 0m (Mock)',
-           lastUpdate: new Date().toISOString()
-         }
-       ];
      }
    }
 
