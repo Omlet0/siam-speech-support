@@ -39,9 +39,10 @@ interface VMDetailModalProps {
   vm: VM | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultTab?: 'analysis' | 'management';
 }
 
-export const VMDetailModal = ({ vm, open, onOpenChange }: VMDetailModalProps) => {
+export const VMDetailModal = ({ vm, open, onOpenChange, defaultTab = 'analysis' }: VMDetailModalProps) => {
   if (!vm) return null;
 
   // Generate AI analysis
@@ -136,7 +137,7 @@ export const VMDetailModal = ({ vm, open, onOpenChange }: VMDetailModalProps) =>
           </Card>
 
           {/* Tabs for AI Analysis and Management */}
-          <Tabs defaultValue="analysis" className="w-full">
+          <Tabs defaultValue={defaultTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="analysis" className="flex items-center gap-2">
                 <Brain className="h-4 w-4" />

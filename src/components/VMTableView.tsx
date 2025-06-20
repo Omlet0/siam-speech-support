@@ -44,8 +44,8 @@ interface VM {
 
 interface VMTableViewProps {
   vms: VM[];
-  onViewDetails: (vm: VM) => void;
-  onManageVM: (vm: VM) => void;
+  onViewDetails: (vm: VM, defaultTab?: 'analysis' | 'management') => void;
+  onManageVM: (vm: VM, defaultTab?: 'analysis' | 'management') => void;
 }
 
 export const VMTableView = ({ vms, onViewDetails, onManageVM }: VMTableViewProps) => {
@@ -172,14 +172,16 @@ export const VMTableView = ({ vms, onViewDetails, onManageVM }: VMTableViewProps
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onViewDetails(vm)}
+                        onClick={() => onViewDetails(vm, 'analysis')}
+                        title="View AI Analysis"
                       >
                         <Eye className="h-3 w-3" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onManageVM(vm)}
+                        onClick={() => onManageVM(vm, 'management')}
+                        title="VM Management"
                       >
                         <Settings className="h-3 w-3" />
                       </Button>

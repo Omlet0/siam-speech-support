@@ -17,22 +17,25 @@ import { Server, Activity, AlertTriangle, CheckCircle, Table, BarChart3 } from "
 const Index = () => {
   const [selectedVM, setSelectedVM] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [defaultTab, setDefaultTab] = useState<'analysis' | 'management'>('analysis');
 
   const totalVMs = mockVMData.length;
   const healthyVMs = mockVMData.filter(vm => vm.status === 'healthy').length;
   const warningVMs = mockVMData.filter(vm => vm.status === 'warning').length;
   const criticalVMs = mockVMData.filter(vm => vm.status === 'critical').length;
 
-  const handleViewDetails = (vm: any) => {
+  const handleViewDetails = (vm: any, tab: 'analysis' | 'management' = 'analysis') => {
     setSelectedVM(vm);
+    setDefaultTab(tab);
     setIsModalOpen(true);
-    console.log('View details for VM:', vm.name);
+    console.log('View details for VM:', vm.name, 'Tab:', tab);
   };
 
-  const handleManageVM = (vm: any) => {
+  const handleManageVM = (vm: any, tab: 'analysis' | 'management' = 'management') => {
     setSelectedVM(vm);
+    setDefaultTab(tab);
     setIsModalOpen(true);
-    console.log('Manage VM:', vm.name);
+    console.log('Manage VM:', vm.name, 'Tab:', tab);
   };
 
   return (
@@ -91,6 +94,7 @@ const Index = () => {
           vm={selectedVM}
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
+          defaultTab={defaultTab}
         />
       </div>
     </div>
