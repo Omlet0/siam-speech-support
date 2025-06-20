@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 
@@ -15,15 +14,28 @@ app.use(cors({
     'http://localhost:3000', 
     'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
     'https://preview--siam-speech-support.lovable.app',
+    'http://preview--siam-speech-support.lovable.app',
     'https://lovableproject.com'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin']
 }));
 
 // Add this middleware to handle preflight requests
-app.options('*', cors());
+app.options('*', cors({
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000', 
+    'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
+    'https://preview--siam-speech-support.lovable.app',
+    'http://preview--siam-speech-support.lovable.app',
+    'https://lovableproject.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Origin']
+}));
 
 app.use(express.json());
 
