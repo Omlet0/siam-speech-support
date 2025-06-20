@@ -8,11 +8,22 @@ const vmRoutes = require('./routes/vmRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
+// Middleware - แก้ไข CORS configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com'], // เพิ่ม Lovable domain
-  credentials: true
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:3000', 
+    'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
+    'https://lovableproject.com'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// Add this middleware to handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
 
 // Health check route - ต้องมาก่อน other routes
