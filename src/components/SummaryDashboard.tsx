@@ -38,10 +38,10 @@ export const SummaryDashboard = ({ vms }: SummaryDashboardProps) => {
   const warningVMs = vms.filter(vm => vm.status === 'warning').length;
   const criticalVMs = vms.filter(vm => vm.status === 'critical').length;
 
-  // Calculate average resource usage
-  const avgCpu = vms.reduce((sum, vm) => sum + vm.cpu, 0) / totalVMs;
-  const avgRam = vms.reduce((sum, vm) => sum + vm.ram, 0) / totalVMs;
-  const avgDisk = vms.reduce((sum, vm) => sum + vm.disk, 0) / totalVMs;
+  // Calculate average resource usage - handle empty array
+  const avgCpu = totalVMs > 0 ? vms.reduce((sum, vm) => sum + vm.cpu, 0) / totalVMs : 0;
+  const avgRam = totalVMs > 0 ? vms.reduce((sum, vm) => sum + vm.ram, 0) / totalVMs : 0;
+  const avgDisk = totalVMs > 0 ? vms.reduce((sum, vm) => sum + vm.disk, 0) / totalVMs : 0;
 
   // Calculate AI analysis summary
   const vmsWithAnalysis = vms.filter(vm => vm.analysisResult);
@@ -57,6 +57,10 @@ export const SummaryDashboard = ({ vms }: SummaryDashboardProps) => {
     if (value > 60) return <TrendingUp className="h-4 w-4 text-yellow-500" />;
     if (value < 30) return <TrendingDown className="h-4 w-4 text-green-500" />;
     return <Minus className="h-4 w-4 text-blue-500" />;
+  };
+
+  const getPercentageDisplay = (value: number) => {
+    return totalVMs > 0 ? `${((value / totalVMs) * 100).toFixed(1)}%` : '0%';
   };
 
   return (
@@ -84,7 +88,7 @@ export const SummaryDashboard = ({ vms }: SummaryDashboardProps) => {
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{healthyVMs}</div>
             <p className="text-xs text-muted-foreground">
-              {((healthyVMs / totalVMs) * 100).toFixed(1)}% of total
+              {getPercentageDisplay(healthyVMs)} of total
             </p>
           </CardContent>
         </Card>
@@ -97,7 +101,7 @@ export const SummaryDashboard = ({ vms }: SummaryDashboardProps) => {
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">{warningVMs}</div>
             <p className="text-xs text-muted-foreground">
-              {((warningVMs / totalVMs) * 100).toFixed(1)}% of total
+              {getPercentageDisplay(warningVMs)} of total
             </p>
           </CardContent>
         </Card>
@@ -110,7 +114,7 @@ export const SummaryDashboard = ({ vms }: SummaryDashboardProps) => {
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{criticalVMs}</div>
             <p className="text-xs text-muted-foreground">
-              {((criticalVMs / totalVMs) * 100).toFixed(1)}% of total
+              {getPercentageDisplay(criticalVMs)} of total
             </p>
           </CardContent>
         </Card>
