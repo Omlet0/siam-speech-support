@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const { exec } = require('child_process');
@@ -169,43 +168,23 @@ app.get('/api/system/status', async (req, res) => {
   }
 });
 
-// Get VM list (simulate multiple VMs)
+// Get VM list (show only real system)
 app.get('/api/vms', async (req, res) => {
   try {
     const systemInfo = await getSystemInfo();
     
-    // Simulate multiple VMs
+    // Show only the real system as a single VM
     const vms = [
       {
         id: 'vm-main',
-        name: 'Main System',
-        status: systemInfo.cpu.percentage > 80 ? 'critical' : 
-               systemInfo.cpu.percentage > 60 ? 'warning' : 'healthy',
-        cpu: systemInfo.cpu.percentage || Math.random() * 100,
+        name: `${systemInfo.hostname} (Main System)`,
+        status: systemInfo.cpu > 80 ? 'critical' : 
+               systemInfo.cpu > 60 ? 'warning' : 'healthy',
+        cpu: systemInfo.cpu,
         ram: systemInfo.memory.percentage,
         disk: systemInfo.disk.percentage,
         uptime: systemInfo.uptime,
         lastUpdate: systemInfo.timestamp
-      },
-      {
-        id: 'vm-docker',
-        name: 'Docker Container',
-        status: Math.random() > 0.7 ? 'warning' : 'healthy',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        uptime: formatUptime(Math.random() * 86400 * 7),
-        lastUpdate: new Date().toISOString()
-      },
-      {
-        id: 'vm-database',
-        name: 'Database Server',
-        status: Math.random() > 0.9 ? 'critical' : 'healthy',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        uptime: formatUptime(Math.random() * 86400 * 30),
-        lastUpdate: new Date().toISOString()
       }
     ];
     
