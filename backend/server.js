@@ -15,7 +15,8 @@ app.use(cors({
     'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
     'https://preview--siam-speech-support.lovable.app',
     'http://preview--siam-speech-support.lovable.app',
-    'https://lovableproject.com'
+    'https://lovableproject.com',
+    'https://id-preview--aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovable.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -30,7 +31,8 @@ app.options('*', cors({
     'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
     'https://preview--siam-speech-support.lovable.app',
     'http://preview--siam-speech-support.lovable.app',
-    'https://lovableproject.com'
+    'https://lovableproject.com',
+    'https://id-preview--aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovable.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
