@@ -54,43 +54,55 @@ class VMManagementAPI {
 
   async getVMs(): Promise<VM[]> {
     try {
-      console.log('Fetching VMs from local API...');
+      console.log('Fetching VMs from backend API...');
       
-      const response = await fetch(`${this.baseUrl}/vms`);
+      const response = await fetch(`${this.baseUrl}/vms`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('Backend API response:', result);
       
-      if (result.success) {
+      if (result.success && result.data) {
         return result.data;
       } else {
         throw new Error(result.message || 'Failed to fetch VMs');
       }
     } catch (error) {
-      console.error('Failed to get VMs:', error);
+      console.error('Failed to get VMs from backend:', error);
       
-      // Fallback to mock data if local API is not available
-      console.log('Falling back to mock data...');
+      // Only fallback to mock data if explicitly needed for development
+      console.log('Backend not available, using mock data...');
       return this.getMockVMs();
     }
   }
 
   async getVMStatus(vmId: string): Promise<any> {
     try {
-      console.log(`Fetching status for VM ${vmId}`);
+      console.log(`Fetching system status from backend...`);
       
-      const response = await fetch(`${this.baseUrl}/system/status`);
+      const response = await fetch(`${this.baseUrl}/system/status`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
+      console.log('System status response:', result);
       
-      if (result.success) {
+      if (result.success && result.data) {
         return {
           id: vmId,
           status: 'running',
@@ -100,53 +112,46 @@ class VMManagementAPI {
         throw new Error(result.message || 'Failed to get system status');
       }
     } catch (error) {
-      console.error('Failed to get VM status:', error);
+      console.error('Failed to get system status:', error);
       throw error;
     }
   }
 
   async checkHealth(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/health`);
+      console.log('Checking backend health...');
+      const response = await fetch(`${this.baseUrl}/health`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) {
+        return false;
+      }
+      
       const result = await response.json();
-      return result.success;
+      console.log('Health check result:', result);
+      return result.success === true;
     } catch (error) {
       console.error('Health check failed:', error);
       return false;
     }
   }
 
-  // Fallback mock data when backend is not available
+  // Mock data for development only
   private getMockVMs(): VM[] {
+    console.warn('Using mock data - backend server not running');
     return [
       {
-        id: 'vm-1',
-        name: 'Production Server',
-        status: 'healthy',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        uptime: '7d 12h 34m',
-        lastUpdate: new Date().toISOString()
-      },
-      {
-        id: 'vm-2',
-        name: 'Development Server',
+        id: 'vm-mock-1',
+        name: 'Mock Server (Backend Offline)',
         status: 'warning',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        uptime: '2d 8h 15m',
-        lastUpdate: new Date().toISOString()
-      },
-      {
-        id: 'vm-3',
-        name: 'Database Server',
-        status: 'critical',
-        cpu: Math.random() * 100,
-        ram: Math.random() * 100,
-        disk: Math.random() * 100,
-        uptime: '15d 3h 22m',
+        cpu: Math.random() * 50 + 20,
+        ram: Math.random() * 60 + 30,
+        disk: Math.random() * 70 + 20,
+        uptime: '0h 0m (Mock)',
         lastUpdate: new Date().toISOString()
       }
     ];
