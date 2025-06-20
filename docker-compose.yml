@@ -1,0 +1,46 @@
+
+version: '3.8'
+
+services:
+  vm-monitoring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: vm-monitoring-dashboard
+    ports:
+      - "3000:80"
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.vm-monitoring.rule=Host(`vm-monitor.local`)"
+      - "traefik.http.services.vm-monitoring.loadbalancer.server.port=80"
+    networks:
+      - monitoring-network
+
+  # Optional: Add Prometheus for monitoring
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    networks:
+      - monitoring-network
+
+networks:
+  monitoring-network:
+    driver: bridge
+
+volumes:
+  prometheus-data:
