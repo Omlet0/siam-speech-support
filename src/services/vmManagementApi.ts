@@ -24,7 +24,7 @@
    }
 
    class VMManagementAPI {
-     private baseUrl = 'http://127.0.0.1:3001/api';
+     private baseUrl = 'http://localhost:3001/api';
 
      async executeAction(action: VMAction): Promise<VMActionResult> {
        try {
@@ -148,3 +148,4 @@
 
    export const vmManagementAPI = new VMManagementAPI();
    
+
