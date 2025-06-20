@@ -37,6 +37,26 @@ export const ActivityLog = ({ activities }: ActivityLogProps) => {
     }
   };
 
+  // Show empty state when no activities
+  if (!activities || activities.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Activity Log</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-[500px] text-muted-foreground">
+            <RefreshCw className="h-12 w-12 mb-4 text-gray-400" />
+            <p className="text-lg font-medium">No Activity Data Available</p>
+            <p className="text-sm text-center mt-2">
+              Connect to the backend server to view system activity logs
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

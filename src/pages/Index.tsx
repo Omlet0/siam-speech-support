@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -189,11 +188,11 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6">
-            <PerformanceChart data={mockPerformanceData} />
+            <PerformanceChart data={isConnected ? [] : []} />
           </TabsContent>
 
           <TabsContent value="activity" className="space-y-6">
-            <ActivityLog activities={mockActivityLog} />
+            <ActivityLog activities={isConnected ? [] : []} />
           </TabsContent>
         </Tabs>
 

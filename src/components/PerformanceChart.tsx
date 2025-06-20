@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { AlertTriangle } from "lucide-react";
 
 interface PerformanceData {
   timestamp: string;
@@ -30,6 +31,26 @@ const chartConfig = {
 };
 
 export const PerformanceChart = ({ data }: PerformanceChartProps) => {
+  // Show empty state when no data
+  if (!data || data.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>System Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center h-[400px] text-muted-foreground">
+            <AlertTriangle className="h-12 w-12 mb-4 text-gray-400" />
+            <p className="text-lg font-medium">No Performance Data Available</p>
+            <p className="text-sm text-center mt-2">
+              Connect to the backend server to view real-time performance metrics
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
