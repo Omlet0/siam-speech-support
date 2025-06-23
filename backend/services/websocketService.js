@@ -10,55 +10,69 @@ class WebSocketService {
   }
 
   initialize(server) {
-    this.wss = new WebSocket.Server({ 
-      port: 8080,
-      verifyClient: (info) => {
-        // Allow CORS for WebSocket
-        const origin = info.origin;
-        const allowedOrigins = [
-          'http://localhost:5173',
-          'http://localhost:3000',
-          'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
-          'https://preview--siam-speech-support.lovable.app',
-          'http://preview--siam-speech-support.lovable.app',
-          'https://lovableproject.com',
-          'https://id-preview--aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovable.app'
-        ];
-        return allowedOrigins.includes(origin) || !origin;
-      }
-    });
-
-    this.wss.on('connection', (ws, req) => {
-      console.log('New WebSocket client connected');
-      this.clients.add(ws);
-
-      // Send initial data immediately
-      this.sendDataToClient(ws);
-
-      ws.on('message', (message) => {
-        try {
-          const data = JSON.parse(message);
-          this.handleClientMessage(ws, data);
-        } catch (error) {
-          console.error('Invalid WebSocket message:', error);
+    try {
+      console.log('🔧 Initializing WebSocket server...');
+      
+      this.wss = new WebSocket.Server({ 
+        port: 8080,
+        verifyClient: (info) => {
+          // Allow CORS for WebSocket
+          const origin = info.origin;
+          const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            'https://aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovableproject.com',
+            'https://preview--siam-speech-support.lovable.app',
+            'http://preview--siam-speech-support.lovable.app',
+            'https://lovableproject.com',
+            'https://id-preview--aa4b2d84-d1ed-4ce1-af12-217149a7965c.lovable.app'
+          ];
+          return allowedOrigins.includes(origin) || !origin;
         }
       });
 
-      ws.on('close', () => {
-        console.log('WebSocket client disconnected');
-        this.clients.delete(ws);
+      this.wss.on('connection', (ws, req) => {
+        console.log('✅ New WebSocket client connected from:', req.headers.origin || 'unknown');
+        this.clients.add(ws);
+
+        // Send initial data immediately
+        this.sendDataToClient(ws);
+
+        ws.on('message', (message) => {
+          try {
+            const data = JSON.parse(message);
+            console.log('📨 Received message:', data.type);
+            this.handleClientMessage(ws, data);
+          } catch (error) {
+            console.error('❌ Invalid WebSocket message:', error);
+          }
+        });
+
+        ws.on('close', () => {
+          console.log('❌ WebSocket client disconnected');
+          this.clients.delete(ws);
+        });
+
+        ws.on('error', (error) => {
+          console.error('💥 WebSocket error:', error);
+          this.clients.delete(ws);
+        });
       });
 
-      ws.on('error', (error) => {
-        console.error('WebSocket error:', error);
-        this.clients.delete(ws);
+      this.wss.on('listening', () => {
+        console.log('🔌 WebSocket server running on ws://localhost:8080');
       });
-    });
 
-    // Start broadcasting data every second
-    this.startDataBroadcast();
+      this.wss.on('error', (error) => {
+        console.error('💥 WebSocket Server Error:', error);
+      });
 
-    console.log('🔌 WebSocket server running on ws://localhost:8080');
+      // Start broadcasting data every second
+      this.startDataBroadcast();
+
+    } catch (error) {
+      console.error('💥 Failed to initialize WebSocket server:', error);
+    }
   }
 
   async sendDataToClient(ws) {
@@ -94,9 +108,10 @@ class WebSocketService {
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(systemMessage));
         ws.send(JSON.stringify(vmMessage));
+        console.log('📤 Data sent to client');
       }
     } catch (error) {
-      console.error('Error sending data to client:', error);
+      console.error('❌ Error sending data to client:', error);
     }
   }
 
@@ -108,10 +123,11 @@ class WebSocketService {
         }
         break;
       case 'request-data':
+        console.log('🔄 Client requested data refresh');
         this.sendDataToClient(ws);
         break;
       default:
-        console.log('Unknown message type:', data.type);
+        console.log('❓ Unknown message type:', data.type);
     }
   }
 
@@ -120,8 +136,10 @@ class WebSocketService {
       clearInterval(this.dataInterval);
     }
 
+    console.log('📡 Starting data broadcast every 1 second...');
     this.dataInterval = setInterval(async () => {
       if (this.clients.size > 0) {
+        console.log(`📤 Broadcasting to ${this.clients.size} clients`);
         for (const client of this.clients) {
           await this.sendDataToClient(client);
         }
@@ -133,10 +151,12 @@ class WebSocketService {
     if (this.dataInterval) {
       clearInterval(this.dataInterval);
       this.dataInterval = null;
+      console.log('⏹️ Data broadcast stopped');
     }
   }
 
   close() {
+    console.log('🔌 Closing WebSocket server...');
     this.stopDataBroadcast();
     if (this.wss) {
       this.wss.close();
