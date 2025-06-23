@@ -32,10 +32,15 @@ const getCpuUsage = async () => {
   const platform = os.platform();
   
   if (platform === 'win32') {
-    // Windows
-    const result = await executeCommand('wmic cpu get loadpercentage /value');
-    const match = result.stdout.match(/LoadPercentage=(\d+)/);
-    return match ? parseFloat(match[1]) : Math.random() * 100;
+    // Windows - ใช้ PowerShell แทน wmic
+    try {
+      const result = await executeCommand('powershell "Get-Counter \\"\\Processor(_Total)\\% Processor Time\\" | Select-Object -ExpandProperty CounterSamples | Select-Object -ExpandProperty CookedValue"');
+      const cpuValue = parseFloat(result.stdout);
+      return isNaN(cpuValue) ? Math.random() * 100 : Math.min(100, cpuValue);
+    } catch (error) {
+      console.log('PowerShell CPU check failed, using fallback:', error.message);
+      return Math.random() * 100;
+    }
   } else if (platform === 'darwin' || platform === 'linux') {
     // macOS/Linux
     try {
@@ -72,19 +77,20 @@ const getDiskInfo = async () => {
   
   try {
     if (platform === 'win32') {
-      // Windows
-      const result = await executeCommand('wmic logicaldisk get size,freespace,caption');
-      const lines = result.stdout.split('\n').filter(line => line.trim());
-      const diskData = lines[1].trim().split(/\s+/);
-      const freeSpace = parseInt(diskData[1]);
-      const totalSpace = parseInt(diskData[2]);
-      const usedSpace = totalSpace - freeSpace;
+      // Windows - ใช้ PowerShell แทน wmic
+      const result = await executeCommand('powershell "Get-PSDrive C | Select-Object Used,Free,@{Name=\\"Size\\";Expression={$_.Used+$_.Free}} | ConvertTo-Json"');
+      const diskData = JSON.parse(result.stdout);
+      
+      const totalGB = Math.round(diskData.Size / 1024 / 1024 / 1024 * 100) / 100;
+      const usedGB = Math.round(diskData.Used / 1024 / 1024 / 1024 * 100) / 100;
+      const freeGB = Math.round(diskData.Free / 1024 / 1024 / 1024 * 100) / 100;
+      const percentage = Math.round((diskData.Used / diskData.Size) * 100);
       
       return {
-        total: Math.round(totalSpace / 1024 / 1024 / 1024 * 100) / 100,
-        used: Math.round(usedSpace / 1024 / 1024 / 1024 * 100) / 100,
-        free: Math.round(freeSpace / 1024 / 1024 / 1024 * 100) / 100,
-        percentage: Math.round((usedSpace / totalSpace) * 100)
+        total: totalGB,
+        used: usedGB,
+        free: freeGB,
+        percentage: percentage
       };
     } else {
       // macOS/Linux
@@ -102,6 +108,7 @@ const getDiskInfo = async () => {
       };
     }
   } catch (error) {
+    console.log('Disk info command failed:', error.message);
     // Fallback: simulate
     const usage = Math.random() * 100;
     return {
