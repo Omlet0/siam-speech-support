@@ -1,5 +1,7 @@
+
 const express = require('express');
 const cors = require('cors');
+const websocketService = require('./services/websocketService');
 
 const systemRoutes = require('./routes/systemRoutes');
 const vmRoutes = require('./routes/vmRoutes');
@@ -47,7 +49,8 @@ app.get('/api/health', (req, res) => {
     success: true,
     message: 'VM Management API is running',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    websocket: 'ws://localhost:8080'
   });
 });
 
@@ -65,7 +68,8 @@ app.get('/', (req, res) => {
       '/api/health',
       '/api/system/status',
       '/api/vms'
-    ]
+    ],
+    websocket: 'ws://localhost:8080'
   });
 });
 
@@ -79,12 +83,24 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
+// Start HTTP server
+const server = app.listen(PORT, () => {
   console.log(`🚀 VM Management API Server running on http://localhost:${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🖥️  System status: http://localhost:${PORT}/api/system/status`);
   console.log(`📋 VMs endpoint: http://localhost:${PORT}/api/vms`);
+});
+
+// Initialize WebSocket server
+websocketService.initialize(server);
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  websocketService.close();
+  server.close(() => {
+    console.log('Process terminated');
+  });
 });
 
 module.exports = app;
