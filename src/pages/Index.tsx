@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -78,7 +77,7 @@ const Index = () => {
             <RealTimeIndicator 
               isConnected={isConnected}
               lastUpdate={systemStatus?.timestamp || vms[0]?.lastUpdate}
-              refreshInterval={5000}
+              refreshInterval={1000} // 1 second refresh
             />
             
             <Button 

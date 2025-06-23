@@ -13,7 +13,7 @@ interface RealTimeIndicatorProps {
 export const RealTimeIndicator = ({ 
   isConnected, 
   lastUpdate, 
-  refreshInterval = 5000 
+  refreshInterval = 1000 // Default to 1 second
 }: RealTimeIndicatorProps) => {
   const [isPulsing, setIsPulsing] = useState(false);
   const [timeSinceUpdate, setTimeSinceUpdate] = useState<number>(0);
@@ -22,7 +22,7 @@ export const RealTimeIndicator = ({
   useEffect(() => {
     if (lastUpdate) {
       setIsPulsing(true);
-      const timer = setTimeout(() => setIsPulsing(false), 1000);
+      const timer = setTimeout(() => setIsPulsing(false), 800);
       return () => clearTimeout(timer);
     }
   }, [lastUpdate]);
@@ -43,13 +43,13 @@ export const RealTimeIndicator = ({
 
   const getStatusColor = () => {
     if (!isConnected) return "text-red-500";
-    if (timeSinceUpdate > refreshInterval / 1000 * 2) return "text-yellow-500";
+    if (timeSinceUpdate > refreshInterval / 1000 * 3) return "text-yellow-500"; // 3x refresh interval
     return "text-green-500";
   };
 
   const getStatusText = () => {
     if (!isConnected) return "Disconnected";
-    if (timeSinceUpdate > refreshInterval / 1000 * 2) return "Delayed";
+    if (timeSinceUpdate > refreshInterval / 1000 * 3) return "Delayed";
     return "Live";
   };
 

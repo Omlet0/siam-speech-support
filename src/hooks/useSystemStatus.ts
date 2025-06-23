@@ -6,10 +6,10 @@ export const useSystemStatus = () => {
   const { data: systemStatus, isLoading, error } = useQuery({
     queryKey: ['system-status'],
     queryFn: () => vmManagementAPI.getVMStatus('main-system'),
-    refetchInterval: 3000, // Refresh every 3 seconds instead of 15
+    refetchInterval: 1000, // Refresh every 1 second instead of 3
     retry: 2,
-    staleTime: 1000, // Consider data stale after 1 second
-    gcTime: 10000, // Keep in cache for 10 seconds
+    staleTime: 100, // Consider data stale after 100ms
+    gcTime: 5000, // Keep in cache for 5 seconds
   });
 
   return {

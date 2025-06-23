@@ -16,9 +16,9 @@ export const usePerformanceData = () => {
   const { data: systemStatus } = useQuery({
     queryKey: ['system-status-performance'],
     queryFn: () => vmManagementAPI.getVMStatus('main-system'),
-    refetchInterval: 2000, // Update every 2 seconds for performance chart
+    refetchInterval: 1000, // Update every 1 second for performance chart
     retry: 1,
-    staleTime: 500,
+    staleTime: 100,
   });
 
   // Update performance history when new data comes in
@@ -33,8 +33,8 @@ export const usePerformanceData = () => {
 
       setPerformanceHistory(prev => {
         const updated = [...prev, newDataPoint];
-        // Keep only last 50 data points (about 100 seconds of data)
-        return updated.slice(-50);
+        // Keep only last 60 data points (about 60 seconds of data)
+        return updated.slice(-60);
       });
     }
   }, [systemStatus]);

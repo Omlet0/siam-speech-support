@@ -6,18 +6,18 @@ export const useVMData = () => {
   const { data: vms = [], isLoading, error, refetch } = useQuery({
     queryKey: ['vms'],
     queryFn: () => vmManagementAPI.getVMs(),
-    refetchInterval: 5000, // Refresh every 5 seconds instead of 30
+    refetchInterval: 1000, // Refresh every 1 second instead of 5
     retry: 3,
-    staleTime: 1000, // Consider data stale after 1 second
-    gcTime: 30000, // Keep in cache for 30 seconds
+    staleTime: 100, // Consider data stale after 100ms
+    gcTime: 10000, // Keep in cache for 10 seconds
   });
 
   const { data: healthStatus, isLoading: isHealthLoading } = useQuery({
     queryKey: ['health'],
     queryFn: () => vmManagementAPI.checkHealth(),
-    refetchInterval: 10000, // Check health every 10 seconds instead of 60
+    refetchInterval: 5000, // Keep health check at 5 seconds
     retry: 2,
-    staleTime: 5000,
+    staleTime: 2000,
   });
 
   return {

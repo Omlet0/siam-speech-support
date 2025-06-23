@@ -18,14 +18,14 @@ export const useActivityData = () => {
   const { data: systemStatus } = useQuery({
     queryKey: ['system-status-activity'],
     queryFn: () => vmManagementAPI.getVMStatus('main-system'),
-    refetchInterval: 5000,
+    refetchInterval: 2000, // Check every 2 seconds for activity generation
     retry: 1,
   });
 
   const { data: vms } = useQuery({
     queryKey: ['vms-activity'],
     queryFn: () => vmManagementAPI.getVMs(),
-    refetchInterval: 5000,
+    refetchInterval: 3000, // Check VMs every 3 seconds
     retry: 1,
   });
 
@@ -69,7 +69,7 @@ export const useActivityData = () => {
       }
 
       // Add system health check
-      if (Math.random() < 0.1) { // 10% chance to add a routine check
+      if (Math.random() < 0.05) { // 5% chance to add a routine check
         newActivities.push({
           id: `health-check-${Date.now()}`,
           timestamp: now,
