@@ -89,10 +89,16 @@ const server = app.listen(PORT, () => {
   console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
   console.log(`🖥️  System status: http://localhost:${PORT}/api/system/status`);
   console.log(`📋 VMs endpoint: http://localhost:${PORT}/api/vms`);
+  
+  // เพิ่มการ initialize WebSocket หลังจาก HTTP server start แล้ว
+  console.log('🔧 Initializing WebSocket server...');
+  try {
+    websocketService.initialize(server);
+    console.log('✅ WebSocket initialization completed');
+  } catch (error) {
+    console.error('❌ WebSocket initialization failed:', error);
+  }
 });
-
-// Initialize WebSocket server
-websocketService.initialize(server);
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
