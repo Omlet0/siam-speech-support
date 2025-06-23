@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,11 +11,12 @@ import { ActivityLog } from "@/components/ActivityLog";
 import { VMTableView } from "@/components/VMTableView";
 import { SummaryDashboard } from "@/components/SummaryDashboard";
 import { VMDetailModal } from "@/components/VMDetailModal";
+import { RealTimeIndicator } from "@/components/RealTimeIndicator";
 import { useVMData } from "@/hooks/useVMData";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { usePerformanceData } from "@/hooks/usePerformanceData";
 import { useActivityData } from "@/hooks/useActivityData";
-import { Server, Activity, AlertTriangle, CheckCircle, Table, BarChart3, Wifi, WifiOff } from "lucide-react";
+import { Server, Activity, AlertTriangle, CheckCircle, Table, BarChart3, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -54,7 +56,7 @@ const Index = () => {
     refetch();
     toast({
       title: "Data Refreshed",
-      description: "VM data has been updated",
+      description: "VM data has been updated manually",
     });
   };
 
@@ -72,23 +74,21 @@ const Index = () => {
             <p className="text-muted-foreground">Real-time monitoring dashboard for virtual machines</p>
           </div>
           <div className="flex items-center gap-4">
-            {/* Connection Status */}
-            <div className="flex items-center gap-2">
-              {isConnected ? (
-                <>
-                  <Wifi className="h-4 w-4 text-green-500" />
-                  <span className="text-sm text-green-600">Connected</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="h-4 w-4 text-red-500" />
-                  <span className="text-sm text-red-600">Disconnected</span>
-                </>
-              )}
-            </div>
+            {/* Real-time Status Indicator */}
+            <RealTimeIndicator 
+              isConnected={isConnected}
+              lastUpdate={systemStatus?.timestamp || vms[0]?.lastUpdate}
+              refreshInterval={5000}
+            />
             
-            <Button onClick={handleRefresh} variant="outline" size="sm">
-              Refresh
+            <Button 
+              onClick={handleRefresh} 
+              variant="outline" 
+              size="sm"
+              disabled={isLoading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+              {isLoading ? 'Refreshing...' : 'Refresh'}
             </Button>
             
             <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ const Index = () => {
               <div>
                 <p className="font-medium text-red-800">Backend API Not Connected</p>
                 <p className="text-sm text-red-600">
-                  Make sure the backend server is running on localhost:3001
+                  Make sure the backend server is running on localhost:3001 for real-time data
                 </p>
               </div>
             </CardContent>
@@ -117,11 +117,12 @@ const Index = () => {
 
         {/* System Status */}
         {systemStatus && (
-          <Card>
+          <Card className="border-green-200 bg-green-50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
+                <Activity className="h-5 w-5 text-green-600" />
                 Live System Status
+                <Badge className="bg-green-100 text-green-800 animate-pulse">LIVE</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -160,15 +161,27 @@ const Index = () => {
               <Table className="h-4 w-4" />
               Table View
             </TabsTrigger>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="activity">Activity Log</TabsTrigger>
+            <TabsTrigger value="performance">
+              Performance
+              {performanceData && performanceData.length > 0 && (
+                <Badge className="ml-1 bg-blue-100 text-blue-800">LIVE</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="activity">
+              Activity Log
+              {activityData && activityData.length > 0 && (
+                <Badge className="ml-1 bg-purple-100 text-purple-800">
+                  {activityData.length}
+                </Badge>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-6">
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p>Loading VM data...</p>
+                <p>Loading real-time VM data...</p>
               </div>
             ) : (
               <SummaryDashboard vms={vms} />
@@ -179,7 +192,7 @@ const Index = () => {
             {isLoading ? (
               <div className="text-center py-8">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-                <p>Loading VM data...</p>
+                <p>Loading real-time VM data...</p>
               </div>
             ) : (
               <VMTableView 
