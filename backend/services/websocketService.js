@@ -1,4 +1,3 @@
-
 const WebSocket = require('ws');
 const { getSystemInfo } = require('./systemService');
 
@@ -7,6 +6,7 @@ class WebSocketService {
     this.wss = null;
     this.clients = new Set();
     this.dataInterval = null;
+    this.maxConnections = 15; // จำกัดจำนวน connection
   }
 
   initialize(server) {
@@ -15,7 +15,14 @@ class WebSocketService {
       
       this.wss = new WebSocket.Server({ 
         port: 8080,
+        maxClients: this.maxConnections, // จำกัดจำนวน client
         verifyClient: (info) => {
+          // ตรวจสอบจำนวน connection ปัจจุบัน
+          if (this.clients.size >= this.maxConnections) {
+            console.log('❌ Connection rejected: Max connections reached');
+            return false;
+          }
+          
           // Allow CORS for WebSocket
           const origin = info.origin;
           const allowedOrigins = [
@@ -32,7 +39,7 @@ class WebSocketService {
       });
 
       this.wss.on('connection', (ws, req) => {
-        console.log('✅ New WebSocket client connected from:', req.headers.origin || 'unknown');
+        console.log(`✅ New WebSocket client connected from: ${req.headers.origin || 'unknown'} (${this.clients.size + 1}/${this.maxConnections})`);
         this.clients.add(ws);
 
         // Send initial data immediately
@@ -49,7 +56,7 @@ class WebSocketService {
         });
 
         ws.on('close', () => {
-          console.log('❌ WebSocket client disconnected');
+          console.log(`❌ WebSocket client disconnected (${this.clients.size - 1}/${this.maxConnections})`);
           this.clients.delete(ws);
         });
 
@@ -60,14 +67,14 @@ class WebSocketService {
       });
 
       this.wss.on('listening', () => {
-        console.log('🔌 WebSocket server running on ws://localhost:8080');
+        console.log(`🔌 WebSocket server running on ws://localhost:8080 (max ${this.maxConnections} connections)`);
       });
 
       this.wss.on('error', (error) => {
         console.error('💥 WebSocket Server Error:', error);
       });
 
-      // Start broadcasting data every second
+      // เปลี่ยนจาก 1 วินาที เป็น 5 วินาที เพื่อลด bandwidth
       this.startDataBroadcast();
 
     } catch (error) {
@@ -136,7 +143,7 @@ class WebSocketService {
       clearInterval(this.dataInterval);
     }
 
-    console.log('📡 Starting data broadcast every 1 second...');
+    console.log('📡 Starting data broadcast every 5 seconds...');
     this.dataInterval = setInterval(async () => {
       if (this.clients.size > 0) {
         console.log(`📤 Broadcasting to ${this.clients.size} clients`);
@@ -144,7 +151,7 @@ class WebSocketService {
           await this.sendDataToClient(client);
         }
       }
-    }, 1000); // Broadcast every 1 second
+    }, 5000); // เปลี่ยนจาก 1000ms เป็น 5000ms (5 วินาที)
   }
 
   stopDataBroadcast() {
