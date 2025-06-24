@@ -143,7 +143,7 @@ class WebSocketService {
       clearInterval(this.dataInterval);
     }
 
-    console.log('📡 Starting data broadcast every 5 seconds...');
+    console.log('📡 Starting data broadcast every 1 second...');
     this.dataInterval = setInterval(async () => {
       if (this.clients.size > 0) {
         console.log(`📤 Broadcasting to ${this.clients.size} clients`);
@@ -151,7 +151,7 @@ class WebSocketService {
           await this.sendDataToClient(client);
         }
       }
-    }, 5000); // เปลี่ยนจาก 1000ms เป็น 5000ms (5 วินาที)
+    }, 1000); // เปลี่ยนกลับเป็น 1000ms (1 วินาที)
   }
 
   stopDataBroadcast() {
