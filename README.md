@@ -1,5 +1,4 @@
-
-# Welcome to VM Helper
+# Welcome to VM Health Monitoring
 
 ## Project info
 
